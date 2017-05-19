@@ -33,7 +33,7 @@ class ProjectsMessageAll(Resource):
             - in: body
               name: body
               required: true
-              description: JSON object for creating draft project
+              description: JSON object for sending message
               schema:
                   properties:
                       subject:
@@ -46,7 +46,7 @@ class ProjectsMessageAll(Resource):
                           required: true
         responses:
             200:
-                description: All mapped tasks validated
+                description: Messages sent
             401:
                 description: Unauthorized - Invalid credentials
             500:
@@ -230,5 +230,62 @@ class MessagesAPI(Resource):
             return {"Error": "No messages found"}, 404
         except Exception as e:
             error_msg = f'Messages GET all - unhandled error: {str(e)}'
+            current_app.logger.critical(error_msg)
+            return {"error": error_msg}, 500
+
+
+class PMMessageAPI(Resource):
+
+    @tm.pm_only(False)
+    @token_auth.login_required
+    def post(self, project_id):
+        """
+        Send message to all contributors to a project
+        ---
+        tags:
+            - messages
+        produces:
+            - application/json
+        parameters:
+            - in: header
+              name: Authorization
+              description: Base64 encoded session token
+              required: true
+              type: string
+              default: Token sessionTokenHere==
+            - name: project_id
+              in: path
+              description: The unique project ID
+              required: true
+              type: integer
+              default: 1
+            - in: body
+              name: body
+              required: true
+              description: JSON object for sending message
+              schema:
+                  properties:
+                      message:
+                          type: string
+                          default: Love your work
+                          required: true
+        responses:
+            200:
+                description: Message sent
+            401:
+                description: Unauthorized - Invalid credentials
+            500:
+                description: Internal Server Error
+        """
+        try:
+            message = request.json['message']
+
+            if not message:
+                return {"error": "Must supply message"}, 400
+
+            MessageService.send_message_to_pm(project_id, message)
+            return {"Success": "Message sent"}, 200
+        except Exception as e:
+            error_msg = f'PMMessageAPI - unhandled error: {str(e)}'
             current_app.logger.critical(error_msg)
             return {"error": error_msg}, 500

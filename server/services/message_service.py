@@ -59,6 +59,10 @@ class MessageService:
             message.add_message()
 
     @staticmethod
+    def send_message_to_pm(project_id: int, message: str):
+        pass
+
+    @staticmethod
     def _parse_comment_for_username(comment: str) -> List[str]:
         """ Extracts all usernames from a comment looks for format @[user name] """
 
