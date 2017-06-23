@@ -35,7 +35,7 @@ The client has a suite of [Jasmine](https://jasmine.github.io/) Unit Tests, that
 
 ```
  cd client    [if not already in client]
- karma start ..\tests\client\karma.conf.js
+ npm test
 ```
 
 ## Server Development
